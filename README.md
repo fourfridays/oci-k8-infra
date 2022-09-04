@@ -1,5 +1,5 @@
 # oci-k8-infra
-Terraform infrastructure as code deployment of Kubernetes platform.
+Terraform infrastructure as code deployment of Kubernetes platform on Oracle Cloud Infrastructure (OCI).
 
 ## Infrastructure
 Infrastructure code and readme taken and modified from [Free Oracle Cloud Kubernetes cluster with Terraform](https://arnoldgalovics.com/oracle-cloud-kubernetes-terraform/).
@@ -31,3 +31,5 @@ The repo was created for this article: [Free Oracle Cloud Kubernetes cluster wit
 
 ### Traefik
 Code and instructions taken from [Ready/Set/Go Kubernetes+Traefik+LetsEncrypt on ARM at Oracle OCI](https://marcelo-ochoa.medium.com/ready-set-go-kubernetes-traefik-letsencrypt-on-arm-at-oracle-oci-eb4a672d3a3a)
+
+The code would deploy a flexible shaped loadbalancer with 10mbps min and max bandwidth with TLS enabled.
