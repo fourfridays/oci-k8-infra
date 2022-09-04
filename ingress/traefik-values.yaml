@@ -1,0 +1,22 @@
+additionalArguments:
+  - --certificatesresolvers.le.acme.email=<<add your email>>
+  - --certificatesresolvers.le.acme.storage=/data/acme.json
+  - --certificatesresolvers.le.acme.tlschallenge=true
+  - --certificatesresolvers.le.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53
+persistence:
+  enabled: true
+  path: /data
+podSecurityContext:
+  fsGroup: 65532
+service:
+  enabled: true
+  type: LoadBalancer
+  annotations: {
+    oci.oraclecloud.com/load-balancer-type: "lb",
+    service.beta.kubernetes.io/oci-load-balancer-shape: "flexible",
+    service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10",
+    service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "10"
+  }
+  spec: {
+    loadBalancerIP: <<add your reserved ip address>>
+  }
