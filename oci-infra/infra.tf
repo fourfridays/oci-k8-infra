@@ -2,7 +2,7 @@ terraform {
   required_providers {
     oci = {
       source = "oracle/oci"
-      version = "4.91.0"
+      version = "4.122.0"
     }
   }
 }
@@ -13,7 +13,7 @@ provider "oci" {
 
 module "vcn" {
   source  = "oracle-terraform-modules/vcn/oci"
-  version = "3.5.0"
+  version = "3.5.4"
 
   compartment_id = var.compartment_id
   region         = var.region
@@ -22,8 +22,8 @@ module "vcn" {
   local_peering_gateways       = null
   nat_gateway_route_rules      = null
 
-  vcn_name      = "vcn_alderaan"
-  vcn_dns_label = "vcnalderaan"
+  vcn_name      = "vcn-fourfridays"
+  vcn_dns_label = "vcnfourfridays"
   vcn_cidrs     = ["10.0.0.0/16"]
 
   create_internet_gateway = true
@@ -35,7 +35,7 @@ resource "oci_core_security_list" "private_subnet_sl" {
   compartment_id = var.compartment_id
   vcn_id         = module.vcn.vcn_id
 
-  display_name = "sl_subnet_private_alderaan"
+  display_name = "sl-subnet-private-fourfridays"
 
   egress_security_rules {
     stateless        = false
@@ -67,7 +67,7 @@ resource "oci_core_security_list" "public_subnet_sl" {
   compartment_id = var.compartment_id
   vcn_id         = module.vcn.vcn_id
 
-  display_name = "sl_subnet_public_alderaan"
+  display_name = "sl-subnet-public-fourfridays"
 
   egress_security_rules {
     stateless        = false
@@ -125,7 +125,7 @@ resource "oci_core_subnet" "vcn_private_subnet" {
 
   route_table_id             = module.vcn.nat_route_id
   security_list_ids          = [oci_core_security_list.private_subnet_sl.id]
-  display_name               = "subnet_private_alderaan"
+  display_name               = "subnet-private-fourfridays"
   prohibit_public_ip_on_vnic = true
 }
 
@@ -136,13 +136,13 @@ resource "oci_core_subnet" "vcn_public_subnet" {
 
   route_table_id    = module.vcn.ig_route_id
   security_list_ids = [oci_core_security_list.public_subnet_sl.id]
-  display_name      = "subnet_public_alderaan"
+  display_name      = "subnet-public-fourfridays"
 }
 
 resource "oci_containerengine_cluster" "k8s_cluster" {
   compartment_id     = var.compartment_id
-  kubernetes_version = "v1.24.1"
-  name               = "cluster_alderaan"
+  kubernetes_version = "v1.25.4"
+  name               = "cluster-fourfridays"
   vcn_id             = module.vcn.vcn_id
 
   endpoint_config {
@@ -152,7 +152,7 @@ resource "oci_containerengine_cluster" "k8s_cluster" {
 
   options {
     add_ons {
-      is_kubernetes_dashboard_enabled = false
+      is_kubernetes_dashboard_enabled = true
       is_tiller_enabled               = false
     }
     kubernetes_network_config {
@@ -175,7 +175,7 @@ locals {
 data "oci_core_images" "latest_image" {
   compartment_id = var.compartment_id
   operating_system = "Oracle Linux"
-  operating_system_version = "7.9"
+  operating_system_version = "8.7"
   filter {
     name   = "display_name"
     values = ["^.*aarch64-.*$"]
@@ -186,8 +186,8 @@ data "oci_core_images" "latest_image" {
 resource "oci_containerengine_node_pool" "k8s_node_pool" {
   cluster_id         = oci_containerengine_cluster.k8s_cluster.id
   compartment_id     = var.compartment_id
-  kubernetes_version = "v1.24.1"
-  name               = "node_pool_alderaan"
+  kubernetes_version = "v1.25.4"
+  name               = "node-pool-fourfridays"
   node_config_details {
     dynamic placement_configs {
       for_each = local.azs
@@ -196,42 +196,25 @@ resource "oci_containerengine_node_pool" "k8s_node_pool" {
         subnet_id           = oci_core_subnet.vcn_private_subnet.id
       }
     }
-<<<<<<< Updated upstream
-    size = 2
-
-=======
     size = 3
->>>>>>> Stashed changes
   }
   node_shape = "VM.Standard.A1.Flex"
 
   node_shape_config {
-    memory_in_gbs = 6
+    memory_in_gbs = 7
     ocpus         = 1
   }
 
   node_source_details {
-<<<<<<< Updated upstream
-    image_id    = data.oci_core_images.latest_image.images.0.id
-=======
-    image_id    = "ocid1.image.oc1.iad.aaaaaaaadl5lond67wh3qx64qjpzh2apqmnranxaorhww3vlxxoipjqa53lq"
->>>>>>> Stashed changes
+    image_id    = "ocid1.image.oc1.iad.aaaaaaaanokb5an2x7kbeyqyk3l735j67rizvqxoaatelz4j3wexp3fexmya"
     source_type = "image"
     boot_volume_size_in_gbs = 50
   }
 
   initial_node_labels {
     key   = "name"
-    value = "cluster_alderaan"
+    value = "cluster-fourfridays"
   }
 
   ssh_public_key = var.ssh_public_key
-}
-
-resource "oci_artifacts_container_repository" "docker_repository" {
-  compartment_id = var.compartment_id
-  display_name   = "free-kubernetes-nginx"
-
-  is_immutable = false
-  is_public    = false
 }
