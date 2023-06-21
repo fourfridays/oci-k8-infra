@@ -1,0 +1,17 @@
+# rancher-tls.yaml
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: rancher-tls
+  namespace: cattle-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`rancher.fourfridays.com`)
+      services:
+        - name: rancher
+          port: 80
+  tls: # This route uses TLS
+    certResolver: le # Uses our certificate resolver to get a certificate automatically!
